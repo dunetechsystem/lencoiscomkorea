@@ -1,69 +1,135 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { site } from "@/config/site";
+import { getAgency, getLagoons, getPackages, getReviews, getTours } from "@/lib/dunastour/server";
+import { getGallery } from "@/lib/dunastour/gallery";
+import { agencyInfo } from "@/lib/agency-info";
+import { Hero } from "@/components/home/Hero";
+import { Marquee } from "@/components/home/Marquee";
+import { Services } from "@/components/home/Services";
+import { About } from "@/components/home/About";
+import { Credentials } from "@/components/home/Credentials";
+import { Lagoons } from "@/components/home/Lagoons";
+import { InstagramSection } from "@/components/home/InstagramSection";
+import { Reviews } from "@/components/home/Reviews";
+import { Faq } from "@/components/home/Faq";
+import { FinalCta } from "@/components/home/FinalCta";
+import { GalleryGrid } from "@/components/gallery/GalleryGrid";
+import { PackageCardView, TourCard } from "@/components/tour/TourCard";
+import { Reveal, SectionTitle } from "@/components/ui/Reveal";
+import { EmptyTours } from "@/components/tour/EmptyTours";
 
-export default function Home() {
+export const revalidate = 300;
+
+export default async function Home() {
+  const [agency, tours, packages, reviews, lagoons, gallery] = await Promise.all([
+    getAgency(),
+    getTours(),
+    getPackages(),
+    getReviews(),
+    getLagoons(),
+    getGallery(),
+  ]);
+  const info = agencyInfo(agency);
+  const photos = gallery.filter((g) => !g.video).map((g) => g.url);
+  const heroImages = [...new Set([agency?.coverImageUrl, ...tours.map((t) => t.coverImageUrl), ...photos])]
+    .filter((u): u is string => !!u)
+    .slice(0, 6);
+  const videos = gallery.filter((g) => g.video).map((g) => ({ src: g.url, title: g.place }));
+  const googleRatings = (agency?.checkoutPage?.googleReviews ?? []).map((r) => r.rating);
+  const ratingCount = (reviews?.count ?? 0) + googleRatings.length;
+  const rating = ratingCount
+    ? { average: ((reviews?.average ?? 0) * (reviews?.count ?? 0) + googleRatings.reduce((a, b) => a + b, 0)) / ratingCount, count: ratingCount }
+    : null;
+  const faqs = agency?.checkoutPage?.faqs.length ? [...agency.checkoutPage.faqs, ...site.faqs] : site.faqs;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <Hero
+        images={heroImages}
+        tourCount={tours.length + packages.length}
+        phone={info.phone}
+        lagoonLevel={lagoons?.level ?? null}
+        rating={rating}
+        cadasturUrl={info.cadasturUrl}
+      />
+      <Marquee items={site.destinations} />
+
+      <section id="passeios" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-24 sm:px-6 sm:py-32">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <SectionTitle
+            eyebrow="Nossos passeios"
+            title={
+              <>
+                Escolha sua <em className="text-lagoon-gradient">aventura</em>
+              </>
+            }
+            text={
+              site.onlineBooking
+                ? "Selecione a data e quantas pessoas vão. Dá pra juntar vários passeios numa reserva só."
+                : "Escolha o passeio e chame a gente no WhatsApp pra verificar a disponibilidade da sua data."
+            }
+          />
+          {tours.length > 3 && (
+            <Reveal>
+              <Link href="/passeios" className="group flex items-center gap-2 font-bold text-navy-900">
+                Ver todos <ArrowRight size={18} className="transition group-hover:translate-x-1" />
+              </Link>
+            </Reveal>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+        {packages.length > 0 && (
+          <div className="mt-12 grid gap-5 md:grid-cols-2">
+            {packages.map((p) => (
+              <Reveal key={p.id}>
+                <PackageCardView pkg={p} />
+              </Reveal>
+            ))}
+          </div>
+        )}
+        {tours.length > 0 ? (
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {tours.slice(0, 6).map((tour, i) => (
+              <Reveal key={tour.id} delay={(i % 3) * 0.1}>
+                <TourCard tour={tour} priority={i < 3} />
+              </Reveal>
+            ))}
+          </div>
+        ) : (
+          packages.length === 0 && <EmptyTours phone={info.phone} />
+        )}
+      </section>
+
+      <Services images={[...photos, ...heroImages].filter((u, i, all) => all.indexOf(u) === i)} />
+      <About description={info.description} instagram={info.instagram} />
+      <Credentials cadasturUrl={info.cadasturUrl} cnpj={info.cnpj} legalName={info.legalName} rating={rating} />
+
+      {gallery.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 sm:pb-32">
+          <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <SectionTitle
+              eyebrow="Galeria"
+              title={
+                <>
+                  Paisagens que <em className="text-gold-gradient">não parecem reais</em>
+                </>
+              }
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            <Reveal>
+              <Link href="/galeria" className="group flex items-center gap-2 font-bold text-navy-900">
+                Ver galeria completa <ArrowRight size={18} className="transition group-hover:translate-x-1" />
+              </Link>
+            </Reveal>
+          </div>
+          <GalleryGrid items={gallery} limit={12} filters={false} />
+        </section>
+      )}
+
+      <InstagramSection instagram={info.instagram} photos={photos.slice(6)} videos={videos} />
+      {lagoons && lagoons.monthLevels?.length === 12 && <Lagoons data={lagoons} />}
+      <Reviews reviews={reviews} page={agency?.checkoutPage} />
+      <Faq items={faqs} />
+      <FinalCta images={photos.slice(4)} phone={info.phone} />
+    </>
   );
 }

@@ -1,26 +1,122 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Paleta tirada da logo: azul-marinho do "MISTER", turquesa da lagoa, dourado do "LENÇÓIS",
+   areia das dunas e o vermelho dos guarás. */
+@theme {
+  --color-navy-950: #04142a;
+  --color-navy-900: #0a2547;
+  --color-navy-800: #0f3360;
+  --color-navy-700: #17457c;
+  --color-navy-100: #dfe8f3;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-lagoon-50: #ebfaff;
+  --color-lagoon-100: #cff2fd;
+  --color-lagoon-200: #9fe4fa;
+  --color-lagoon-300: #5fd1f4;
+  --color-lagoon-400: #22bce9;
+  --color-lagoon-500: #0aa3d6;
+  --color-lagoon-600: #0682b3;
+  --color-lagoon-700: #0b6890;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --color-sand-50: #fdfaf4;
+  --color-sand-100: #f8f0e0;
+  --color-sand-200: #f0e0c0;
+  --color-sand-300: #e5c992;
+  --color-sand-400: #d6ad66;
+
+  --color-gold-400: #dcab55;
+  --color-gold-500: #c58d36;
+  --color-gold-600: #a26f22;
+
+  --color-ibis-500: #e3412e;
+
+  --font-sans: var(--font-manrope);
+  --font-display: var(--font-playfair);
+
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-kenburns: kenburns 18s ease-out both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes kenburns {
+    from { transform: scale(1.12) translate3d(0, 0, 0); }
+    to { transform: scale(1) translate3d(0, -1.5%, 0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
   }
 }
 
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-sand-50);
+  color: var(--color-navy-900);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-lagoon-200);
+  color: var(--color-navy-950);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+/* Brilho dourado dos títulos em destaque. */
+@utility text-gold-gradient {
+  background: linear-gradient(100deg, var(--color-gold-600), var(--color-gold-400) 45%, #f3d48f 55%, var(--color-gold-500));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-lagoon-gradient {
+  background: linear-gradient(100deg, var(--color-lagoon-300), var(--color-lagoon-500) 60%, var(--color-lagoon-700));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility skeleton {
+  background: linear-gradient(90deg, var(--color-sand-100) 25%, var(--color-sand-200) 50%, var(--color-sand-100) 75%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
