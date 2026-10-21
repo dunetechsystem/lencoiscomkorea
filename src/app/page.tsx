@@ -6,6 +6,7 @@ import { getGallery } from "@/lib/dunastour/gallery";
 import { agencyInfo } from "@/lib/agency-info";
 import { Hero } from "@/components/home/Hero";
 import { Marquee } from "@/components/home/Marquee";
+import { LogoAnimation } from "@/components/home/LogoAnimation";
 import { Services } from "@/components/home/Services";
 import { About } from "@/components/home/About";
 import { Credentials } from "@/components/home/Credentials";
@@ -54,6 +55,7 @@ export default async function Home() {
         cadasturUrl={info.cadasturUrl}
       />
       <Marquee items={site.destinations} />
+      {site.logoVideo && <LogoAnimation src={site.logoVideo} />}
 
       <section id="passeios" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-24 sm:px-6 sm:py-32">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">

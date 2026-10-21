@@ -20,6 +20,12 @@ export const site = {
   heroVideo: "",
 
   /**
+   * Animação da logo mostrada na home, logo abaixo do hero (fundo branco, sem áudio).
+   * Vazio = some a seção.
+   */
+  logoVideo: "/logo-animacao.mp4",
+
+  /**
    * Compra pelo site (carrinho, checkout e termo de risco via DunasTour). Desligado = cada passeio
    * mostra só "Verificar disponibilidade", que abre o WhatsApp com o nome do passeio. true pra religar.
    */
