@@ -93,7 +93,7 @@ export function Header({ info }: { info: AgencyInfo }) {
           >
             <InstagramIcon />
           </a>
-          {site.onlineBooking && (
+          {(site.onlineBooking || site.cart) && (
             <button
               onClick={() => setCartOpen(true)}
               aria-label={`Meu roteiro (${items.length})`}
