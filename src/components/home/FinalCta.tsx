@@ -41,6 +41,7 @@ export function FinalCta({ images, phone }: { images: string[]; phone: string })
               </Link>
               <a
                 href={whatsappUrl(phone, "Olá! Quero ajuda pra montar meu roteiro nos Lençóis 😊")}
+                data-lead="cta-final"
                 target="_blank"
                 rel="noreferrer"
                 className="group flex items-center justify-center gap-3 rounded-full bg-white/10 py-2 pl-2 pr-7 text-sm font-bold ring-1 ring-white/30 backdrop-blur transition hover:bg-[#25D366] hover:ring-[#25D366]"

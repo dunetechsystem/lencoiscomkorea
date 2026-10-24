@@ -8,6 +8,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppFab } from "@/components/layout/WhatsAppFab";
 import { CartDrawer } from "@/components/checkout/CartDrawer";
+import { Analytics } from "@/components/layout/Analytics";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", display: "swap", style: ["normal", "italic"] });
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     siteName: site.name,
-    images: [{ url: "/og.jpg", width: 1200, height: 692, alt: "Mister K Lençóis" }],
+    // Imagem do compartilhamento (logo da Mister K): app/opengraph-image.png e twitter-image.png.
   },
   icons: { icon: "/logo-misterk.webp" },
 };
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <Footer info={info} />
         <WhatsAppFab phone={info.phone} />
         {(site.onlineBooking || site.cart) && <CartDrawer phone={info.phone} />}
+        <Analytics />
       </body>
     </html>
   );

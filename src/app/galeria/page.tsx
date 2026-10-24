@@ -4,7 +4,10 @@ import { PageHero } from "@/components/layout/PageHero";
 import { GalleryGrid } from "@/components/gallery/GalleryGrid";
 
 export const revalidate = 300;
-export const metadata: Metadata = { title: "Galeria de fotos e vídeos" };
+export const metadata: Metadata = {
+  title: "Galeria de fotos e vídeos",
+  description: "Fotos e vídeos dos passeios da Mister K pelos Lençóis Maranhenses: lagoas, dunas, Rio Preguiças e Atins.",
+};
 
 export default async function GalleryPage() {
   const gallery = await getGallery();

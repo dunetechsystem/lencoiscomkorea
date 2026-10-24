@@ -10,7 +10,7 @@ export function TourCard({ tour, priority = false }: { tour: TourCardType; prior
   const discounted = price < tour.basePrice;
   return (
     <Link
-      href={`/passeios/${tour.id}`}
+      href={`/passeios/${tour.slug ?? tour.id}`}
       className="group relative flex flex-col overflow-hidden rounded-[2rem] bg-white shadow-[0_20px_50px_-25px_rgba(4,20,42,0.35)] ring-1 ring-navy-900/5 transition duration-500 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-25px_rgba(4,20,42,0.5)]"
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-sand-100">
@@ -78,7 +78,7 @@ export function TourCard({ tour, priority = false }: { tour: TourCardType; prior
 export function PackageCardView({ pkg }: { pkg: PackageCard }) {
   return (
     <Link
-      href={`/pacotes/${pkg.id}`}
+      href={`/pacotes/${pkg.slug ?? pkg.id}`}
       className="group relative flex min-h-80 flex-col justify-end overflow-hidden rounded-[2rem] bg-navy-900 p-6 text-white shadow-xl"
     >
       {pkg.coverImageUrl && (

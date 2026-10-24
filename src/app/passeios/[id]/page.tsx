@@ -1,42 +1,52 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Backpack, BadgeCheck, CarFront, Check, Clock, Flame, Footprints, ShieldAlert, Sunrise, Users } from "lucide-react";
-import { getAgency, getTour, getTours } from "@/lib/dunastour/server";
+import { findBySlug, getAgency, getReviews, getTour, getTours } from "@/lib/dunastour/server";
 import { tourBase } from "@/lib/booking-base";
 import { agencyInfo } from "@/lib/agency-info";
 import { site } from "@/config/site";
-import { displayTitle, duration, unitLabel } from "@/lib/format";
+import { displayTitle, duration, tourUnitPrice, unitLabel } from "@/lib/format";
 import { PageHero } from "@/components/layout/PageHero";
 import { MediaMosaic } from "@/components/tour/MediaMosaic";
 import { BookingPanel } from "@/components/tour/BookingPanel";
 import { LineList, RichText } from "@/components/tour/RichText";
 import { TourCard } from "@/components/tour/TourCard";
 import { Reveal } from "@/components/ui/Reveal";
+import { ReviewsSnippet } from "@/components/tour/ReviewsSnippet";
 
 export const revalidate = 300;
 
 export async function generateStaticParams() {
-  return (await getTours()).map((t) => ({ id: t.id }));
+  return (await getTours()).map((t) => ({ id: t.slug ?? t.id }));
+}
+
+/** O parâmetro da URL é o slug ("lagoa-azul"); o id antigo ainda funciona e redireciona. */
+async function resolveTour(param: string) {
+  const tours = await getTours();
+  const card = findBySlug(tours, param);
+  return { tours, card, tour: await getTour(card?.id ?? param) };
 }
 
 export async function generateMetadata({ params }: PageProps<"/passeios/[id]">): Promise<Metadata> {
-  const tour = await getTour((await params).id);
+  const { tour, card } = await resolveTour((await params).id);
   if (!tour) return { title: "Passeio não encontrado" };
   const title = displayTitle(tour.title);
   return {
     title,
     description: tour.description.replace(/\s+/g, " ").slice(0, 160),
+    alternates: card?.slug ? { canonical: `/passeios/${card.slug}` } : undefined,
     openGraph: { title, images: tour.mediaUrls.slice(0, 1) },
   };
 }
 
 export default async function TourPage({ params }: PageProps<"/passeios/[id]">) {
   const { id } = await params;
-  const [tour, tours, agency] = await Promise.all([getTour(id), getTours(), getAgency()]);
+  const [{ tour, tours, card }, agency, reviews] = await Promise.all([resolveTour(id), getAgency(), getReviews()]);
   if (!tour) notFound();
+  if (card?.slug && card.slug !== decodeURIComponent(id)) permanentRedirect(`/passeios/${card.slug}`);
   const title = displayTitle(tour.title);
-  const cover = tour.mediaUrls[0] ?? tours.find((t) => t.id === id)?.coverImageUrl ?? null;
-  const others = tours.filter((t) => t.id !== id).slice(0, 3);
+  const cover = tour.mediaUrls[0] ?? card?.coverImageUrl ?? null;
+  const others = tours.filter((t) => t.id !== tour.id).slice(0, 3);
   const vehicle = tour.saleUnit && tour.saleUnit !== "PESSOA";
 
   const facts = [
@@ -57,7 +67,11 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
     description: tour.description.slice(0, 500),
     image: tour.mediaUrls.slice(0, 3),
     provider: { "@type": "TravelAgency", name: agency?.tradeName ?? "Mister K Lençóis" },
-    offers: { "@type": "Offer", price: tour.basePrice, priceCurrency: "BRL", availability: "https://schema.org/InStock" },
+    offers: { "@type": "Offer", price: tourUnitPrice(tour), priceCurrency: "BRL", availability: "https://schema.org/InStock" },
+    // Estrelas no Google: a nota deste passeio no DunasTour (só quando já tem avaliação).
+    ...(tour.ratingCount > 0 && {
+      aggregateRating: { "@type": "AggregateRating", ratingValue: tour.ratingAvg.toFixed(1), reviewCount: tour.ratingCount, bestRating: 5 },
+    }),
   };
 
   return (
@@ -127,6 +141,8 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
               )}
             </div>
           )}
+
+          <ReviewsSnippet reviews={reviews} page={agency?.checkoutPage} tourTitle={title} />
 
           {tour.riskType && (
             <div className="mt-8 flex gap-3 rounded-3xl border border-gold-400/40 bg-gold-400/10 p-5 text-sm text-navy-900/80">

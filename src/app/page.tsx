@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { site } from "@/config/site";
 import { getAgency, getLagoons, getPackages, getReviews, getTours } from "@/lib/dunastour/server";
 import { getGallery } from "@/lib/dunastour/gallery";
+import { tourUnitPrice } from "@/lib/format";
 import { agencyInfo } from "@/lib/agency-info";
 import { Hero } from "@/components/home/Hero";
 import { Marquee } from "@/components/home/Marquee";
@@ -42,6 +43,11 @@ export default async function Home() {
   const rating = ratingCount
     ? { average: ((reviews?.average ?? 0) * (reviews?.count ?? 0) + googleRatings.reduce((a, b) => a + b, 0)) / ratingCount, count: ratingCount }
     : null;
+  // Preço de entrada do hero: o passeio por pessoa mais barato (veículo e transfer não comparam).
+  const perPerson = tours
+    .filter((t) => (!t.saleUnit || t.saleUnit === "PESSOA") && !(t.transferFrom && t.transferTo))
+    .map(tourUnitPrice)
+    .filter((p) => p > 0);
   const faqs = agency?.checkoutPage?.faqs.length ? [...agency.checkoutPage.faqs, ...site.faqs] : site.faqs;
 
   return (
@@ -53,6 +59,7 @@ export default async function Home() {
         lagoonLevel={lagoons?.level ?? null}
         rating={rating}
         cadasturUrl={info.cadasturUrl}
+        minPrice={perPerson.length ? Math.min(...perPerson) : null}
       />
       <Marquee items={site.destinations} />
       {site.logoVideo && <LogoAnimation src={site.logoVideo} />}

@@ -7,7 +7,10 @@ import { EmptyTours } from "@/components/tour/EmptyTours";
 import { Reveal } from "@/components/ui/Reveal";
 
 export const revalidate = 300;
-export const metadata: Metadata = { title: "Passeios" };
+export const metadata: Metadata = {
+  title: "Passeios",
+  description: "Passeios 4x4 pela Lagoa Azul e Lagoa Bonita, Rio Preguiças, Atins, Caburé e trekking nos Lençóis Maranhenses, com busca no hotel.",
+};
 
 export default async function ToursPage() {
   const [tours, packages, agency] = await Promise.all([getTours(), getPackages(), getAgency()]);

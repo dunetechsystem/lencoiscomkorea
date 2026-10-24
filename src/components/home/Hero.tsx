@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { BadgeCheck, ChevronDown, Compass, Droplets, MapPin, Star } from "lucide-react";
 import { site } from "@/config/site";
-import { whatsappUrl } from "@/lib/format";
+import { whatsappUrl, money } from "@/lib/format";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { Wave } from "@/components/ui/Wave";
 
@@ -37,6 +37,7 @@ export function Hero({
   lagoonLevel,
   rating,
   cadasturUrl,
+  minPrice,
 }: {
   images: string[];
   tourCount: number;
@@ -44,6 +45,8 @@ export function Hero({
   lagoonLevel: number | null;
   rating: { average: number; count: number } | null;
   cadasturUrl: string | null;
+  /** Passeio por pessoa mais barato — quem chega de anúncio vê logo o preço de entrada. */
+  minPrice: number | null;
 }) {
   const slides = images.length ? images : [];
   const [index, setIndex] = useState(0);
@@ -106,6 +109,12 @@ export function Hero({
           className="mt-6 max-w-xl text-lg leading-relaxed text-white/80 sm:text-xl"
         >
           Passeios em 4x4 pelas lagoas, Rio Preguiças, Atins e Caburé com quem é daqui. Do clássico ao exclusivo — no seu ritmo.
+          {minPrice != null && (
+            <>
+              {" "}
+              A partir de <strong className="text-white">{money(minPrice)}</strong> por pessoa.
+            </>
+          )}
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -121,6 +130,7 @@ export function Hero({
           </Link>
           <a
             href={whatsappUrl(phone, "Olá! Quero montar meu roteiro nos Lençóis 😊")}
+            data-lead="hero"
             target="_blank"
             rel="noreferrer"
             className="group flex items-center justify-center gap-3 rounded-full bg-white/10 py-2 pl-2 pr-7 text-sm font-bold text-white ring-1 ring-white/30 backdrop-blur-md transition hover:bg-[#25D366] hover:ring-[#25D366]"
