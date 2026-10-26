@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     siteName: site.name,
     // Imagem do compartilhamento (logo da Mister K): app/opengraph-image.png e twitter-image.png.
   },
-  icons: { icon: "/logo-misterk.webp" },
+  // Ícones: app/icon.png e app/apple-icon.png (logo da Mister K).
 };
 
 export const viewport: Viewport = {
