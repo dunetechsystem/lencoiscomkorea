@@ -85,13 +85,6 @@ export default async function Home() {
                 : "Escolha o passeio e chame a gente no WhatsApp pra verificar a disponibilidade da sua data."
             }
           />
-          {tours.length > 3 && (
-            <Reveal>
-              <Link href="/passeios" className="group flex items-center gap-2 font-bold text-navy-900">
-                Ver todos <ArrowRight size={18} className="transition group-hover:translate-x-1" />
-              </Link>
-            </Reveal>
-          )}
         </div>
         {packages.length > 0 && (
           <div className="mt-12 grid gap-5 md:grid-cols-2">
@@ -104,7 +97,7 @@ export default async function Home() {
         )}
         {tours.length > 0 ? (
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {tours.slice(0, 6).map((tour, i) => (
+            {tours.map((tour, i) => (
               <Reveal key={tour.id} delay={(i % 3) * 0.1}>
                 <TourCard tour={tour} priority={i < 3} />
               </Reveal>
@@ -127,16 +120,9 @@ export default async function Home() {
               }
               text="Traslado entre as cidades da região, combinando com os seus passeios."
             />
-            {transfers.length > 3 && (
-              <Reveal>
-                <Link href="/passeios#transfers" className="group flex items-center gap-2 font-bold text-navy-900">
-                  Ver todos <ArrowRight size={18} className="transition group-hover:translate-x-1" />
-                </Link>
-              </Reveal>
-            )}
           </div>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {transfers.slice(0, 3).map((tour, i) => (
+            {transfers.map((tour, i) => (
               <Reveal key={tour.id} delay={(i % 3) * 0.1}>
                 <TourCard tour={tour} />
               </Reveal>

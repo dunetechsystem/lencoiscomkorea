@@ -54,7 +54,7 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
   const route = transfer ? transferRoute(tour) : null;
   const split = splitTransfers(tours.filter((t) => t.id !== tour.id));
   const others = split.tours.slice(0, 3);
-  const transfers = transfer ? [] : split.transfers.slice(0, 3);
+  const transfers = transfer ? [] : split.transfers;
   const vehicle = tour.saleUnit && tour.saleUnit !== "PESSOA";
 
   const facts = [
