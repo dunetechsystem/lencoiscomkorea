@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { site } from "@/config/site";
@@ -20,6 +21,8 @@ import { GalleryGrid } from "@/components/gallery/GalleryGrid";
 import { PackageCardView, TourCard } from "@/components/tour/TourCard";
 import { Reveal, SectionTitle } from "@/components/ui/Reveal";
 import { EmptyTours } from "@/components/tour/EmptyTours";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export const revalidate = 300;
 

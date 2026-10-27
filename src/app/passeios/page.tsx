@@ -9,6 +9,7 @@ import { Reveal } from "@/components/ui/Reveal";
 export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Passeios",
+  alternates: { canonical: "/passeios" },
   description: "Passeios 4x4 pela Lagoa Azul e Lagoa Bonita, Rio Preguiças, Atins, Caburé e trekking nos Lençóis Maranhenses, com busca no hotel.",
 };
 
