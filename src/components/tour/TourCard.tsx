@@ -1,13 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Clock, Footprints, ShieldAlert, Star } from "lucide-react";
+import { ArrowUpRight, Bus, Clock, Footprints, ShieldAlert, Star } from "lucide-react";
 import { site } from "@/config/site";
 import type { PackageCard, TourCard as TourCardType } from "@/lib/dunastour/types";
 import { displayTitle, duration, money, perUnit, tourUnitPrice } from "@/lib/format";
+import { isTransfer, transferRoute } from "@/lib/transfers";
 
 export function TourCard({ tour, priority = false }: { tour: TourCardType; priority?: boolean }) {
   const price = tourUnitPrice(tour);
   const discounted = price < tour.basePrice;
+  const transfer = isTransfer(tour);
+  const route = transfer ? transferRoute(tour) : null;
+  const tags = tour.tags.filter((t) => t.trim().toLowerCase() !== "transfer");
   return (
     <Link
       href={`/passeios/${tour.slug ?? tour.id}`}
@@ -39,6 +43,11 @@ export function TourCard({ tour, priority = false }: { tour: TourCardType; prior
               <ShieldAlert size={11} /> Aventura
             </span>
           )}
+          {transfer && (
+            <span className="flex items-center gap-1 rounded-full bg-navy-900 px-2.5 py-1 text-[11px] font-bold text-gold-400">
+              <Bus size={11} /> Transfer
+            </span>
+          )}
           {tour.trekLevel && (
             <span className="flex items-center gap-1 rounded-full bg-lagoon-500 px-2.5 py-1 text-[11px] font-bold text-white">
               <Footprints size={11} /> Trekking
@@ -49,12 +58,13 @@ export function TourCard({ tour, priority = false }: { tour: TourCardType; prior
           <ArrowUpRight size={18} />
         </span>
         <div className="absolute inset-x-0 bottom-0 p-5">
-          {tour.tags.length > 0 && (
+          {tags.length > 0 && (
             <p className="mb-1.5 line-clamp-1 text-[11px] font-bold uppercase tracking-[0.18em] text-lagoon-200">
-              {tour.tags.slice(0, 3).join(" · ")}
+              {tags.slice(0, 3).join(" · ")}
             </p>
           )}
           <h3 className="font-display text-2xl leading-tight text-white">{displayTitle(tour.title)}</h3>
+          {route && <p className="mt-1 text-sm font-semibold text-white/85">{route}</p>}
           {tour.ratingCount > 0 && (
             <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-white/80">
               <Star size={12} className="fill-gold-400 text-gold-400" /> {tour.ratingAvg.toFixed(1)} ({tour.ratingCount})
@@ -69,7 +79,7 @@ export function TourCard({ tour, priority = false }: { tour: TourCardType; prior
             {money(price)} <span className="text-xs font-semibold text-navy-900/50">{perUnit(tour.saleUnit)}</span>
           </p>
         </div>
-        <span className="rounded-full bg-navy-900 px-4 py-2 text-xs font-bold text-white transition group-hover:bg-gold-500">{site.onlineBooking ? "Reservar" : "Ver passeio"}</span>
+        <span className="rounded-full bg-navy-900 px-4 py-2 text-xs font-bold text-white transition group-hover:bg-gold-500">{site.onlineBooking ? "Reservar" : transfer ? "Ver transfer" : "Ver passeio"}</span>
       </div>
     </Link>
   );

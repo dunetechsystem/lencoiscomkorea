@@ -14,6 +14,7 @@ import { TourCard } from "@/components/tour/TourCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { ReviewsSnippet } from "@/components/tour/ReviewsSnippet";
 import { TourReviewsSummary } from "@/components/tour/TourReviews";
+import { isTransfer, splitTransfers, transferRoute } from "@/lib/transfers";
 
 export const revalidate = 300;
 
@@ -48,7 +49,12 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
   if (card?.slug && card.slug !== decodeURIComponent(id)) permanentRedirect(`/passeios/${card.slug}`);
   const title = displayTitle(tour.title);
   const cover = tour.mediaUrls[0] ?? card?.coverImageUrl ?? null;
-  const others = tours.filter((t) => t.id !== tour.id).slice(0, 3);
+  // Passeio: "Combine com" só outros passeios e, embaixo, os transfers. Transfer: sugere os passeios.
+  const transfer = isTransfer(tour);
+  const route = transfer ? transferRoute(tour) : null;
+  const split = splitTransfers(tours.filter((t) => t.id !== tour.id));
+  const others = split.tours.slice(0, 3);
+  const transfers = transfer ? [] : split.transfers.slice(0, 3);
   const vehicle = tour.saleUnit && tour.saleUnit !== "PESSOA";
 
   const facts = [
@@ -82,11 +88,11 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
       <PageHero
         image={cover}
         tall
-        eyebrow={tour.tags.length ? tour.tags.join(" · ") : "Lençóis Maranhenses"}
+        eyebrow={route ?? (tour.tags.length ? tour.tags.join(" · ") : "Lençóis Maranhenses")}
         title={title}
         crumbs={[
           { href: "/", label: "Início" },
-          { href: "/passeios", label: "Passeios" },
+          transfer ? { href: "/passeios#transfers", label: "Transfers" } : { href: "/passeios", label: "Passeios" },
         ]}
       >
         <div className="mt-6 flex flex-wrap gap-2">
@@ -168,10 +174,32 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
       {others.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6">
           <h2 className="mb-8 font-display text-4xl text-navy-900">
-            Combine com <em className="text-lagoon-gradient">outros passeios</em>
+            {transfer ? (
+              <>
+                Aproveite e conheça <em className="text-lagoon-gradient">nossos passeios</em>
+              </>
+            ) : (
+              <>
+                Combine com <em className="text-lagoon-gradient">outros passeios</em>
+              </>
+            )}
           </h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {others.map((t) => (
+              <TourCard key={t.id} tour={t} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {transfers.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-8 pt-8 sm:px-6">
+          <h2 className="mb-2 font-display text-4xl text-navy-900">
+            Precisa de <em className="text-gold-gradient">transfer</em>?
+          </h2>
+          <p className="mb-8 text-navy-900/60">A gente leva você até a região e traz de volta.</p>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {transfers.map((t) => (
               <TourCard key={t.id} tour={t} />
             ))}
           </div>

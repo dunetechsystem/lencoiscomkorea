@@ -21,13 +21,14 @@ import { GalleryGrid } from "@/components/gallery/GalleryGrid";
 import { PackageCardView, TourCard } from "@/components/tour/TourCard";
 import { Reveal, SectionTitle } from "@/components/ui/Reveal";
 import { EmptyTours } from "@/components/tour/EmptyTours";
+import { splitTransfers } from "@/lib/transfers";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export const revalidate = 300;
 
 export default async function Home() {
-  const [agency, tours, packages, reviews, lagoons, gallery] = await Promise.all([
+  const [agency, allTours, packages, reviews, lagoons, gallery] = await Promise.all([
     getAgency(),
     getTours(),
     getPackages(),
@@ -36,6 +37,8 @@ export default async function Home() {
     getGallery(),
   ]);
   const info = agencyInfo(agency);
+  // Transfers numa seção própria, depois dos passeios (senão tomam a vitrine).
+  const { tours, transfers } = splitTransfers(allTours);
   const photos = gallery.filter((g) => !g.video).map((g) => g.url);
   const heroImages = [...new Set([agency?.coverImageUrl, ...tours.map((t) => t.coverImageUrl), ...photos])]
     .filter((u): u is string => !!u)
@@ -108,9 +111,39 @@ export default async function Home() {
             ))}
           </div>
         ) : (
-          packages.length === 0 && <EmptyTours phone={info.phone} />
+          packages.length === 0 && transfers.length === 0 && <EmptyTours phone={info.phone} />
         )}
       </section>
+
+      {transfers.length > 0 && (
+        <section id="transfers" className="mx-auto max-w-7xl scroll-mt-20 px-4 pb-24 sm:px-6 sm:pb-32">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <SectionTitle
+              eyebrow="Transfers"
+              title={
+                <>
+                  Chegue com <em className="text-gold-gradient">tranquilidade</em>
+                </>
+              }
+              text="Traslado entre as cidades da região, combinando com os seus passeios."
+            />
+            {transfers.length > 3 && (
+              <Reveal>
+                <Link href="/passeios#transfers" className="group flex items-center gap-2 font-bold text-navy-900">
+                  Ver todos <ArrowRight size={18} className="transition group-hover:translate-x-1" />
+                </Link>
+              </Reveal>
+            )}
+          </div>
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {transfers.slice(0, 3).map((tour, i) => (
+              <Reveal key={tour.id} delay={(i % 3) * 0.1}>
+                <TourCard tour={tour} />
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
 
       <Services images={[...photos, ...heroImages].filter((u, i, all) => all.indexOf(u) === i)} />
       <About description={info.description} instagram={info.instagram} />
