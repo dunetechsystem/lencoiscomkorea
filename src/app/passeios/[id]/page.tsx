@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Backpack, BadgeCheck, CarFront, Check, Clock, Flame, Footprints, ShieldAlert, Sunrise, Users } from "lucide-react";
-import { findBySlug, getAgency, getReviews, getTour, getTourReviews, getTours } from "@/lib/dunastour/server";
+import { findBySlug, getAgency, getTour, getTourReviews, getTours } from "@/lib/dunastour/server";
 import { tourBase } from "@/lib/booking-base";
 import { agencyInfo } from "@/lib/agency-info";
 import { site } from "@/config/site";
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: PageProps<"/passeios/[id]">):
 
 export default async function TourPage({ params }: PageProps<"/passeios/[id]">) {
   const { id } = await params;
-  const [{ tour, tours, card }, agency, reviews] = await Promise.all([resolveTour(id), getAgency(), getReviews()]);
+  const [{ tour, tours, card }, agency] = await Promise.all([resolveTour(id), getAgency()]);
   if (!tour) notFound();
   const tourReviews = await getTourReviews(tour.id);
   if (card?.slug && card.slug !== decodeURIComponent(id)) permanentRedirect(`/passeios/${card.slug}`);
@@ -152,7 +152,7 @@ export default async function TourPage({ params }: PageProps<"/passeios/[id]">) 
 
           {/* Avaliações do DunasTour com fotos: avatares + estrelas e o botão pra página com comentários e fotos. */}
           <TourReviewsSummary reviews={tourReviews} href={`/passeios/${card?.slug ?? id}/avaliacoes`} />
-          <ReviewsSnippet reviews={reviews} page={agency?.checkoutPage} tourTitle={title} />
+          <ReviewsSnippet reviews={tourReviews} />
 
           {tour.riskType && (
             <div className="mt-8 flex gap-3 rounded-3xl border border-gold-400/40 bg-gold-400/10 p-5 text-sm text-navy-900/80">
