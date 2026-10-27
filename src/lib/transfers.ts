@@ -22,11 +22,17 @@ export function isTransfer(tour: Pick<TourCard, "transferFrom" | "transferTo" | 
   return (!!tour.transferFrom && !!tour.transferTo) || tour.tags.some((t) => t.trim().toLowerCase() === "transfer");
 }
 
-/** "São Luís → Barreirinhas" (null sem as duas cidades). */
-export function transferRoute(tour: Pick<TourCard, "transferFrom" | "transferTo">) {
+/** Nomes das cidades de saída e chegada (null sem as duas). */
+export function transferCities(tour: Pick<TourCard, "transferFrom" | "transferTo">) {
   const from = tour.transferFrom && CITIES[tour.transferFrom];
   const to = tour.transferTo && CITIES[tour.transferTo];
-  return from && to ? `${from} → ${to}` : null;
+  return from && to ? { from, to } : null;
+}
+
+/** "São Luís → Barreirinhas" (null sem as duas cidades). */
+export function transferRoute(tour: Pick<TourCard, "transferFrom" | "transferTo">) {
+  const cities = transferCities(tour);
+  return cities ? `${cities.from} → ${cities.to}` : null;
 }
 
 /** Separa os transfers dos passeios (o resto, inclusive trekking). */

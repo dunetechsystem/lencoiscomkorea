@@ -1,16 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Bus, Clock, Footprints, ShieldAlert, Star } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Bus, Clock, Footprints, ShieldAlert, Star } from "lucide-react";
 import { site } from "@/config/site";
 import type { PackageCard, TourCard as TourCardType } from "@/lib/dunastour/types";
 import { displayTitle, duration, money, perUnit, tourUnitPrice } from "@/lib/format";
-import { isTransfer, transferRoute } from "@/lib/transfers";
+import { isTransfer, transferCities } from "@/lib/transfers";
 
 export function TourCard({ tour, priority = false }: { tour: TourCardType; priority?: boolean }) {
   const price = tourUnitPrice(tour);
   const discounted = price < tour.basePrice;
   const transfer = isTransfer(tour);
-  const route = transfer ? transferRoute(tour) : null;
+  const route = transfer ? transferCities(tour) : null;
   const tags = tour.tags.filter((t) => t.trim().toLowerCase() !== "transfer");
   return (
     <Link
@@ -63,8 +63,24 @@ export function TourCard({ tour, priority = false }: { tour: TourCardType; prior
               {tags.slice(0, 3).join(" · ")}
             </p>
           )}
-          <h3 className="font-display text-2xl leading-tight text-white">{displayTitle(tour.title)}</h3>
-          {route && <p className="mt-1 text-sm font-semibold text-white/85">{route}</p>}
+          {route ? (
+            <>
+              <h3 className="text-sm font-semibold text-white/80">{displayTitle(tour.title)}</h3>
+              <div className="mt-2 flex items-center gap-2 rounded-2xl bg-white/10 p-3 ring-1 ring-white/20 backdrop-blur">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gold-400">Saída</p>
+                  <p className="font-display text-xl leading-tight text-white">{route.from}</p>
+                </div>
+                <ArrowRight size={20} className="shrink-0 text-gold-400" />
+                <div className="min-w-0 flex-1 text-right">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gold-400">Chegada</p>
+                  <p className="font-display text-xl leading-tight text-white">{route.to}</p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <h3 className="font-display text-2xl leading-tight text-white">{displayTitle(tour.title)}</h3>
+          )}
           {tour.ratingCount > 0 && (
             <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-white/80">
               <Star size={12} className="fill-gold-400 text-gold-400" /> {tour.ratingAvg.toFixed(1)} ({tour.ratingCount})
