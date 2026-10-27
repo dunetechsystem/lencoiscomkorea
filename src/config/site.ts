@@ -6,7 +6,9 @@ export const site = {
   name: "Mister K Lençóis",
   tagline: "Seu guia nos Lençóis",
   city: "Barreirinhas · MA · Brasil",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.NODE_ENV === "production" ? "https://misterklencois.com.br" : "http://localhost:3000"),
 
   /** Usados se a API não devolver telefone/Instagram da agência. */
   fallbackWhatsapp: "+55 (98) 97029-6918",
