@@ -21,6 +21,9 @@ ARG DUNASTOUR_API_URL
 ARG DUNASTOUR_AGENCY_SLUG
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
+# node_modules sai do standalone pra virar uma camada própria: muda só quando as dependências mudam, então o
+# servidor reaproveita a que já tem e cada deploy baixa só o código do site.
+RUN mv .next/standalone/node_modules /app/standalone-modules
 
 FROM node:22-alpine AS runner
 WORKDIR /app
@@ -29,6 +32,7 @@ ENV NODE_ENV=production \
     PORT=3000 \
     HOSTNAME=0.0.0.0
 RUN addgroup -S -g 1001 nodejs && adduser -S -u 1001 -G nodejs nextjs
+COPY --from=builder --chown=nextjs:nodejs /app/standalone-modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
