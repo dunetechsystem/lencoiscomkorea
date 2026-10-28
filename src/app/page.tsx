@@ -55,9 +55,25 @@ export default async function Home() {
     .map(tourUnitPrice)
     .filter((p) => p > 0);
   const faqs = agency?.checkoutPage?.faqs.length ? [...agency.checkoutPage.faqs, ...site.faqs] : site.faqs;
+  // Nome do site e logo no resultado do Google (o painel da direita vem do Perfil da Empresa no Google).
+  const jsonLd = [
+    { "@context": "https://schema.org", "@type": "WebSite", name: site.name, url: site.url },
+    {
+      "@context": "https://schema.org",
+      "@type": "TravelAgency",
+      name: site.name,
+      url: site.url,
+      logo: `${site.url}/icon.png`,
+      image: heroImages[0] ?? `${site.url}/opengraph-image.png`,
+      telephone: info.phone,
+      address: { "@type": "PostalAddress", addressLocality: info.city, addressRegion: "MA", addressCountry: "BR" },
+      sameAs: [`https://www.instagram.com/${info.instagram}`, `https://www.tiktok.com/@${site.tiktok}`],
+    },
+  ];
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Hero
         images={heroImages}
         tourCount={tours.length + packages.length}
