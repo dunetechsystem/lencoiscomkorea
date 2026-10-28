@@ -60,7 +60,7 @@ jobs:
       - name: Deploy no Coolify
         if: env.COOLIFY_WEBHOOK != ''
         run: |
-          echo "Chamando ${COOLIFY_WEBHOOK%%\?*} (sem a query)"
-          code=$(curl -sS -o resposta.txt -w '%{http_code}' -H "Authorization: Bearer $COOLIFY_TOKEN" "$COOLIFY_WEBHOOK")
+          # Desde o Coolify 4.5 o deploy é POST (GET responde 405)
+          code=$(curl -sS -X POST -o resposta.txt -w '%{http_code}' -H "Authorization: Bearer $COOLIFY_TOKEN" "$COOLIFY_WEBHOOK")
           echo "HTTP $code"; cat resposta.txt; echo
           [ "$code" -lt 400 ]
