@@ -7,7 +7,7 @@ export const site = {
   tagline: "Seu guia nos Lençóis",
   city: "Barreirinhas · MA · Brasil",
   url:
-    process.env.NEXT_PUBLIC_SITE_URL ??
+    process.env.NEXT_PUBLIC_SITE_URL ||
     (process.env.NODE_ENV === "production" ? "https://misterklencois.com.br" : "http://localhost:3000"),
 
   /** Usados se a API não devolver telefone/Instagram da agência. */
